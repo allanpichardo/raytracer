@@ -1,0 +1,1 @@
+/Library/Developer/CommandLineTools/usr/bin/c++  -g -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/raytracer.dir/main.cpp.o CMakeFiles/raytracer.dir/impl/Camera.cpp.o CMakeFiles/raytracer.dir/impl/Plane.cpp.o CMakeFiles/raytracer.dir/impl/Sphere.cpp.o CMakeFiles/raytracer.dir/impl/Mesh.cpp.o CMakeFiles/raytracer.dir/impl/Light.cpp.o  -o ../bin/raytracer 
