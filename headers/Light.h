@@ -6,12 +6,9 @@
 #define RAYTRACER_LIGHT_H
 
 #include <glm/glm.hpp>
+#include "SceneObject.h"
 
-class Light {
-private:
-    glm::vec3 position;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
+class Light: public SceneObject {
 };
 
 #endif //RAYTRACER_LIGHT_H

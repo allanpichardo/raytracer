@@ -6,13 +6,14 @@
 #define RAYTRACER_CAMERA_H
 
 #include <glm/glm.hpp>
+#include "SceneObject.h"
 
-class Camera {
-private:
-    glm::vec3 position;
+class Camera: public SceneObject {
+public:
     float fieldOfView;
     float focalLength;
     float aspectRatio;
+
 };
 
 #endif //RAYTRACER_CAMERA_H

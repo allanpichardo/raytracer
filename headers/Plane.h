@@ -6,15 +6,10 @@
 #define RAYTRACER_PLANE_H
 
 #include <glm/glm.hpp>
+#include "SceneObject.h"
 
-class Plane {
-private:
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec3 ambience;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-    float shininess;
+class Plane: public SceneObject {
+
 };
 
 #endif //RAYTRACER_PLANE_H

@@ -6,14 +6,12 @@
 #define RAYTRACER_MESH_H
 
 #include <glm/glm.hpp>
+#include "SceneObject.h"
+#include <string>
 
-class Mesh {
-private:
-    char* filename;
-    glm::vec3 ambience;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-    float shininess;
+class Mesh: public SceneObject {
+public:
+    std::string filename;
 };
 
 #endif //RAYTRACER_MESH_H

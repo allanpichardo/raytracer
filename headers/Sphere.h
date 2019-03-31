@@ -6,15 +6,10 @@
 #define RAYTRACER_SPHERE_H
 
 #include <glm/glm.hpp>
+#include "SceneObject.h"
 
-class Sphere {
-private:
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec3 ambience;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-    float shininess;
+class Sphere: public SceneObject {
+
 };
 
 #endif //RAYTRACER_SPHERE_H

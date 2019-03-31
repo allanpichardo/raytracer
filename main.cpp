@@ -1,6 +1,7 @@
 #include <iostream>
+#include "Scene.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+    Scene scene("../scenes/scene5.txt");
+    std::cout << "done";
 }
