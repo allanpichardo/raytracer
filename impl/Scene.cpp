@@ -13,7 +13,10 @@
 #include <Mesh.h>
 #include <Light.h>
 
-Scene::Scene(std::string filename) {
+Scene::Scene(unsigned int width, unsigned int height, std::string filename) {
+
+    this->width = width;
+    this->height = height;
 
     std::ifstream input(filename);
     std::string line;

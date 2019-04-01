@@ -6,7 +6,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 
-add_executable(raytracer main.cpp headers/Camera.h headers/Plane.h headers/Sphere.h headers/Mesh.h headers/Light.h impl/Camera.cpp impl/Plane.cpp impl/Sphere.cpp impl/Mesh.cpp impl/Light.cpp headers/Cimg.h headers/Scene.h impl/Scene.cpp headers/SceneObject.h)
+add_executable(raytracer main.cpp headers/Camera.h headers/Plane.h headers/Sphere.h headers/Mesh.h headers/Light.h impl/Camera.cpp impl/Plane.cpp impl/Sphere.cpp impl/Mesh.cpp impl/Light.cpp headers/Cimg.h headers/Scene.h impl/Scene.cpp headers/SceneObject.h headers/Ray.h impl/Ray.cpp)
 
 find_package(glm REQUIRED Boost COMPONENTS regex filesystem)
 

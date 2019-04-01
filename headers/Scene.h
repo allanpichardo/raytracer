@@ -12,7 +12,9 @@
 #include "Light.h"
 
 class Scene {
-public:
+private:
+    int width;
+    int height;
     int totalObjects;
     Camera* camera;
     std::vector<Light*> lights;
@@ -24,7 +26,8 @@ private:
     void setProperty(SceneObject* object, std::vector<std::string> data);
 
 public:
-    Scene(std::string filename);
+    Scene();
+    Scene(unsigned int width, unsigned int height, std::string filename);
     ~Scene();
 };
 

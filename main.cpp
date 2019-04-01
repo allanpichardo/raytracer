@@ -2,6 +2,6 @@
 #include "Scene.h"
 
 int main() {
-    Scene scene("../scenes/scene5.txt");
+    Scene scene(800, 600, "../scenes/scene5.txt");
     std::cout << "done";
 }
