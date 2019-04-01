@@ -7,6 +7,9 @@
 
 #include <glm/glm.hpp>
 #include "SceneObject.h"
+#include "Camera.h"
+#include "Pixel.h"
+#include "Intersection.h"
 
 class Ray {
 private:
@@ -15,9 +18,9 @@ private:
 
 public:
     Ray(glm::vec3 &origin, glm::vec3 &direction);
-    glm::vec3 intersection(SceneObject* object);
-    static Ray traceToPixel(unsigned &x, unsigned &y);
-    static Ray traceToObject(SceneObject* object);
+    Intersection cast(SceneObject* object);
+    static Ray toPixel(Camera &camera, Pixel &pixel);
+    static Ray toObject(SceneObject &origin, SceneObject* destination);
 };
 
 #endif //RAYTRACER_RAY_H

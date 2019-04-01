@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "SceneObject.h"
 #include "Light.h"
+#include "Pixel.h"
 
 class Scene {
 private:
@@ -19,11 +20,13 @@ private:
     Camera* camera;
     std::vector<Light*> lights;
     std::vector<SceneObject*> sceneObjects;
+    Pixel** screen;
 
 private:
     void parseLine(std::vector<SceneObject*> &objects, std::string &line);
     void addToScene(std::vector<SceneObject*> &objects, std::vector<std::string> parts);
     void setProperty(SceneObject* object, std::vector<std::string> data);
+    void initializeScreen();
 
 public:
     Scene();

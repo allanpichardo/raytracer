@@ -53,6 +53,10 @@ Scene::Scene(unsigned int width, unsigned int height, std::string filename) {
         }
     }
 
+    if(camera) {
+        camera->initializeCoordinateSystem();
+    }
+
 }
 
 void Scene::parseLine(std::vector<SceneObject*> &objects, std::string &line) {
@@ -160,4 +164,21 @@ Scene::~Scene() {
 
     delete camera;
     camera = nullptr;
+
+    for(int i = 0; i < height; i++) {
+        delete[] screen[i];
+    }
+}
+
+void Scene::initializeScreen() {
+    screen = new Pixel*[height];
+    for(int i = 0; i < height; i++) {
+        screen[i] = new Pixel[width];
+    }
+
+    for(int i = 0; i < height; i++) {
+        for(int j = 0; i < width; j++) {
+            screen[i][j].initialize(width, height, j, i, camera);
+        }
+    }
 }
