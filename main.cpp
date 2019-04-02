@@ -2,7 +2,7 @@
 #include "Scene.h"
 
 int main() {
-    Scene scene;
+    Scene scene("../scenes/scene1.txt");
     if(scene.isSceneLoaded()) {
         scene.renderToImage("../output/render.bmp");
     }

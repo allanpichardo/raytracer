@@ -20,6 +20,7 @@ public:
     float shininess;
     Type type;
 
+    virtual ~SceneObject() = default;
 };
 
 #endif //RAYTRACER_SCENEOBJECT_H

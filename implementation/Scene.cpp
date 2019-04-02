@@ -7,23 +7,15 @@
 #include <sstream>
 #include <iostream>
 #include <boost/tokenizer.hpp>
-#include <SceneObject.h>
-#include <Plane.h>
-#include <Sphere.h>
-#include <Mesh.h>
-#include <Light.h>
-#include <Loader.h>
+#include "SceneObject.h"
+#include "Plane.h"
+#include "Sphere.h"
+#include "Mesh.h"
+#include "Light.h"
+#include "Loader.h"
 #include <CImg.h>
 
-Scene::Scene() {
-    Scene("../scenes/scene1.txt");
-}
-
-Scene::Scene(std::string filename) {
-    Scene(0,0,filename);
-}
-
-Scene::Scene(unsigned int width, unsigned int height, std::string filename) {
+Scene::Scene(unsigned int width, unsigned int height, const std::string &filename) {
 
     this->width = width;
     this->height = height;
@@ -33,8 +25,8 @@ Scene::Scene(unsigned int width, unsigned int height, std::string filename) {
     if(isSceneLoaded()) {
         camera->initializeCoordinateSystem();
         if(width == 0 && height == 0) {
-            this->width = camera->getViewWidth();
-            this->height = camera->getViewHeight();
+            this->width = (int)camera->getViewWidth();
+            this->height = (int)camera->getViewHeight();
         }
         initializeScreen();
     } else {
@@ -65,11 +57,11 @@ bool Scene::isSceneLoaded() {
 
 void Scene::renderToImage(const char* filename) {
     cimg_library::CImg<float> image(width, height, 1, 3, 0);
-    for(int i = 0; i < height; i++) {
-        for(int j = 0; j < width; j++) {
-            image(j,i,0) = screen[j][i].color.x;
-            image(j,i,1) = screen[j][i].color.y;
-            image(j,i,2) = screen[j][i].color.z;
+    for(int i = 0; i < width; i++) {
+        for(int j = 0; j < height; j++) {
+            image(i,j,0) = screen[j][i].color.x;
+            image(i,j,1) = screen[j][i].color.y;
+            image(i,j,2) = screen[j][i].color.z;
         }
     }
     image.save(filename);
@@ -105,7 +97,7 @@ void Scene::deallocateResources() {
 
     if(screen != nullptr) {
         delete camera;
-        camera = NULL;
+        camera = nullptr;
 
         for(int i = 0; i < height; i++) {
             if(screen[i] != nullptr) {

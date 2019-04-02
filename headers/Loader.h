@@ -13,7 +13,7 @@
 
 class Loader {
 public:
-    static void loadScene(std::string &filename, std::vector<SceneObject*> &sceneObjects, std::vector<Light*> &lights, Camera* &camera);
+    static void loadScene(const std::string &filename, std::vector<SceneObject*> &sceneObjects, std::vector<Light*> &lights, Camera* &camera);
 private:
     static void parseLine(std::vector<SceneObject*> &objects, std::string &line);
     static void addToScene(std::vector<SceneObject*> &objects, std::vector<std::string> parts);

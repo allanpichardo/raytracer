@@ -27,10 +27,10 @@ private:
     void deallocateResources();
 
 public:
-    Scene();
-    Scene(std::string filename);
+    Scene() {camera = nullptr; screen = nullptr;};
+    Scene(std::string filename) : Scene(0,0,filename) {};
     Scene(const Scene& other);
-    Scene(unsigned int width, unsigned int height, std::string filename);
+    Scene(unsigned int width, unsigned int height, const std::string &filename);
     ~Scene();
     Scene& operator=(const Scene& other);
     void renderToImage(const char* filename);

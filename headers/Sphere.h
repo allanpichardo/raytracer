@@ -9,7 +9,8 @@
 #include "SceneObject.h"
 
 class Sphere: public SceneObject {
-
+public:
+    float radius;
 };
 
 #endif //RAYTRACER_SPHERE_H

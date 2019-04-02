@@ -9,8 +9,9 @@
 #include <Sphere.h>
 #include <Mesh.h>
 #include "Loader.h"
+#include "SceneObject.h"
 
-void Loader::loadScene(std::string &filename, std::vector<SceneObject*> &sceneObjects, std::vector<Light*> &lights,
+void Loader::loadScene(const std::string &filename, std::vector<SceneObject*> &sceneObjects, std::vector<Light*> &lights,
                        Camera* &camera) {
 
     std::ifstream input(filename);
@@ -136,6 +137,9 @@ void Loader::setProperty(SceneObject* object, std::vector<std::string> data) {
             break;
         case hash("file:"):
             ((Mesh*)object)->filename = data[1];
+            break;
+        case hash("rad:"):
+            ((Sphere*)object)->radius = std::stof(data[1]);
             break;
     }
 }
