@@ -10,15 +10,16 @@
 
 class Camera: public SceneObject {
 public:
-    float fieldOfView;
-    float focalLength;
-    float aspectRatio;
+    float fieldOfView{};
+    float focalLength{};
+    float aspectRatio{};
 
 private:
-    float W, H;
-    glm::vec3 n, u, v, C, L;
+    float W{}, H{};
+    glm::vec3 n{}, u{}, v{}, C{}, L{};
 
 public:
+    Camera() {type = camera;};
     void initializeCoordinateSystem();
     inline float getViewWidth() const {return W;};
     inline float getViewHeight() const {return H;};

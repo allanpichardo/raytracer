@@ -12,6 +12,9 @@
 class Mesh: public SceneObject {
 public:
     std::string filename;
+
+public:
+    Mesh() {type = mesh;};
 };
 
 #endif //RAYTRACER_MESH_H

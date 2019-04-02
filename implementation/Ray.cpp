@@ -16,16 +16,19 @@ Ray Ray::toPixel(Camera &camera, Pixel &pixel) {
 
 bool Ray::cast(SceneObject *target, glm::vec3 &intersection) {
     switch(target->type) {
-        case SceneObject::camera:break;
-        case SceneObject::plane:break;
+        case SceneObject::plane:
+            return hasPlaneIntersection((Plane*)target, intersection);
         case SceneObject::sphere:
-            return hasSphereIntersection(dynamic_cast<Sphere *>(target), intersection);
+            return hasSphereIntersection((Sphere*)target, intersection);
         case SceneObject::mesh:break;
-        case SceneObject::light:break;
+        default:
+            return false;
     }
+
+    return false;
 }
 
-bool Ray::hasSphereIntersection(Sphere *target, glm::vec3 &intersection) {
+bool Ray::hasSphereIntersection(Sphere* target, glm::vec3 &intersection) {
     glm::vec3 c2e = origin - target->position;
 
     float a = glm::dot(direction, direction);
@@ -46,6 +49,18 @@ bool Ray::hasSphereIntersection(Sphere *target, glm::vec3 &intersection) {
     intersection = origin + (t * direction);
 
     return true;
+}
+
+bool Ray::hasPlaneIntersection(Plane* plane, glm::vec3 &intersection) {
+    float d = glm::dot(direction, plane->normal);
+
+    if(abs(d) > 0.0f) {
+        float t = glm::dot(plane->position - origin, plane->normal) / d;
+        intersection = origin + (t * direction);
+        return t >= 0.0f;
+    }
+
+    return false;
 }
 
 

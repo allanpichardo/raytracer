@@ -165,15 +165,48 @@ void Scene::deepCopy(const Scene& other) {
 }
 
 void Scene::raytrace() {
+    clock_t start = clock();
+    std::cout << "Raytracing:";
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
             Ray ray = Ray::toPixel(*camera, screen[y][x]);
+            float z = -HUGE_VALF;
             for(int i = 0; i < sceneObjects.size(); i++) {
                 glm::vec3 intersection;
                 if(ray.cast(sceneObjects[i], intersection)) {
-                    screen[y][x].color = glm::vec3(1.0f);
+                    if(intersection.z > z) {
+//                        screen[y][x].color = getIlluminationAt(sceneObjects[i], intersection);
+                        //screen[y][x].color = glm::clamp(intersection, 0.0f, 1.0f);
+                        screen[y][x].color = glm::vec3(1.0f);
+                        z = intersection.z;
+                    }
                 }
             }
         }
+        std::cout << "." << std::endl;
     }
+    std::cout << "Raytracing completed in " << (double)(clock() - start) / CLOCKS_PER_SEC << " seconds." << std::endl;
+}
+
+glm::vec3 Scene::getIlluminationAt(SceneObject* &object, glm::vec3 &intersection) {
+    glm::vec3 color;
+    glm::vec3 normal;
+
+    switch(object->type) {
+        case SceneObject::plane:
+            normal = object->normal;
+            break;
+        case SceneObject::sphere:
+            normal = glm::normalize(intersection - object->position);
+            break;
+        case SceneObject::mesh:break;
+        default:
+            return glm::vec3(0.0f);
+    }
+
+    for(int i = 0; i < lights.size(); i++) {
+
+    }
+
+    return color;
 }

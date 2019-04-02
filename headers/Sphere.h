@@ -10,7 +10,10 @@
 
 class Sphere: public SceneObject {
 public:
-    float radius;
+    float radius{};
+
+public:
+    Sphere() {type = sphere;};
 };
 
 #endif //RAYTRACER_SPHERE_H

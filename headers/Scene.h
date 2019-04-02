@@ -36,6 +36,7 @@ public:
     Scene& operator=(const Scene& other);
     void renderToImage(const char* filename);
     bool isSceneLoaded();
+    glm::vec3 getIlluminationAt(SceneObject* &object, glm::vec3 &intersection);
 };
 
 #endif //RAYTRACER_SCENE_H

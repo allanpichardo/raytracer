@@ -9,7 +9,8 @@
 #include "SceneObject.h"
 
 class Plane: public SceneObject {
-
+public:
+    Plane() {type = plane;};
 };
 
 #endif //RAYTRACER_PLANE_H

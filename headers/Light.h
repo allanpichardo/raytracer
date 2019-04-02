@@ -9,6 +9,8 @@
 #include "SceneObject.h"
 
 class Light: public SceneObject {
+public:
+    Light() {type = light;};
 };
 
 #endif //RAYTRACER_LIGHT_H

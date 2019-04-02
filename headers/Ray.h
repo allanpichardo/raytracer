@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "Pixel.h"
 #include "Sphere.h"
+#include "Plane.h"
 
 class Ray {
 public:
@@ -18,6 +19,7 @@ public:
 
 private:
     bool hasSphereIntersection(Sphere* sphere, glm::vec3 &intersection);
+    bool hasPlaneIntersection(Plane* plane, glm::vec3 &intersection);
 
 public:
     Ray(glm::vec3 &origin, glm::vec3 &direction);
