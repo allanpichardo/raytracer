@@ -25,6 +25,7 @@ private:
     void initializeScreen();
     void deepCopy(const Scene& other);
     void deallocateResources();
+    void raytrace();
 
 public:
     Scene() {camera = nullptr; screen = nullptr;};

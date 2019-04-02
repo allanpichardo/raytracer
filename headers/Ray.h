@@ -9,16 +9,19 @@
 #include "SceneObject.h"
 #include "Camera.h"
 #include "Pixel.h"
-#include "Intersection.h"
+#include "Sphere.h"
 
 class Ray {
-private:
+public:
     glm::vec3 origin;
     glm::vec3 direction;
 
+private:
+    bool hasSphereIntersection(Sphere* sphere, glm::vec3 &intersection);
+
 public:
     Ray(glm::vec3 &origin, glm::vec3 &direction);
-    Intersection cast(SceneObject* object);
+    bool cast(SceneObject* target, glm::vec3 &intersection);
     static Ray toPixel(Camera &camera, Pixel &pixel);
     static Ray toObject(SceneObject &origin, SceneObject* destination);
 };

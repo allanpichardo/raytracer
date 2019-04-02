@@ -14,6 +14,7 @@
 #include "Light.h"
 #include "Loader.h"
 #include <CImg.h>
+#include <Ray.h>
 
 Scene::Scene(unsigned int width, unsigned int height, const std::string &filename) {
 
@@ -56,12 +57,14 @@ bool Scene::isSceneLoaded() {
 }
 
 void Scene::renderToImage(const char* filename) {
+    raytrace();
+
     cimg_library::CImg<float> image(width, height, 1, 3, 0);
     for(int i = 0; i < width; i++) {
         for(int j = 0; j < height; j++) {
-            image(i,j,0) = screen[j][i].color.x;
-            image(i,j,1) = screen[j][i].color.y;
-            image(i,j,2) = screen[j][i].color.z;
+            image(i,j,0) = screen[j][i].color.x * 255.0f;
+            image(i,j,1) = screen[j][i].color.y * 255.0f;
+            image(i,j,2) = screen[j][i].color.z * 255.0f;
         }
     }
     image.save(filename);
@@ -159,4 +162,18 @@ void Scene::deepCopy(const Scene& other) {
     }
 
     initializeScreen();
+}
+
+void Scene::raytrace() {
+    for(int y = 0; y < height; y++) {
+        for(int x = 0; x < width; x++) {
+            Ray ray = Ray::toPixel(*camera, screen[y][x]);
+            for(int i = 0; i < sceneObjects.size(); i++) {
+                glm::vec3 intersection;
+                if(ray.cast(sceneObjects[i], intersection)) {
+                    screen[y][x].color = glm::vec3(1.0f);
+                }
+            }
+        }
+    }
 }
