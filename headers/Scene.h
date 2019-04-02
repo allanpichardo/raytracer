@@ -16,22 +16,25 @@ class Scene {
 private:
     int width;
     int height;
-    int totalObjects;
     Camera* camera;
     std::vector<Light*> lights;
     std::vector<SceneObject*> sceneObjects;
     Pixel** screen;
 
 private:
-    void parseLine(std::vector<SceneObject*> &objects, std::string &line);
-    void addToScene(std::vector<SceneObject*> &objects, std::vector<std::string> parts);
-    void setProperty(SceneObject* object, std::vector<std::string> data);
     void initializeScreen();
+    void deepCopy(const Scene& other);
+    void deallocateResources();
 
 public:
     Scene();
+    Scene(std::string filename);
+    Scene(const Scene& other);
     Scene(unsigned int width, unsigned int height, std::string filename);
     ~Scene();
+    Scene& operator=(const Scene& other);
+    void renderToImage(const char* filename);
+    bool isSceneLoaded();
 };
 
 #endif //RAYTRACER_SCENE_H

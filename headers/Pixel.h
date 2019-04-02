@@ -10,7 +10,7 @@
 
 class Pixel {
 public:
-    glm::vec3 position;
+    glm::vec3 position, color;
     float width;
     float height;
 
