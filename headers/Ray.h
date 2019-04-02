@@ -29,7 +29,7 @@ public:
     bool intersects(SceneObject *target, glm::vec3 &intersection, float &distance);
     static Ray toPixel(Camera &camera, Pixel &pixel);
     static Ray toObject(glm::vec3 &origin, glm::vec3 &destination);
-    bool isLightBlocked(Light* light, std::vector<SceneObject*> objects);
+    bool isLightBlockedBy(Light* light, SceneObject* objects);
 };
 
 #endif //RAYTRACER_RAY_H

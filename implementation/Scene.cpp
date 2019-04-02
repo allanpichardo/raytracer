@@ -175,8 +175,7 @@ void Scene::raytrace() {
                 glm::vec3 intersection;
                 if(ray.intersects(sceneObjects[i], intersection)) {
                     if(intersection.z > z) {
-//                        screen[y][x].color = getIlluminationAt(sceneObjects[i], intersection);
-                        screen[y][x].color = sceneObjects[i]->ambient;
+                        screen[y][x].color = getIlluminationAt(ray, sceneObjects[i], intersection);
                         z = intersection.z;
                     }
                 }
@@ -187,8 +186,8 @@ void Scene::raytrace() {
     std::cout << "Raytracing completed in " << (double)(clock() - start) / CLOCKS_PER_SEC << " seconds." << std::endl;
 }
 
-glm::vec3 Scene::getIlluminationAt(SceneObject* &object, glm::vec3 &intersection) {
-    glm::vec3 color = glm::vec3(0.0f);
+glm::vec3 Scene::getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &intersection) {
+    float bias = 1.1f;
     glm::vec3 normal;
 
     switch(object->type) {
@@ -203,26 +202,32 @@ glm::vec3 Scene::getIlluminationAt(SceneObject* &object, glm::vec3 &intersection
             return glm::vec3(0.0f);
     }
 
+    glm::vec3 lightContribution = glm::vec3(0.0f);
     for(int i = 0; i < lights.size(); i++) {
-        Ray shadowRay = Ray::toObject(intersection, lights[i]->position);
-        if(!shadowRay.isLightBlocked(lights[i], sceneObjects)) {
-            glm::vec3 l = shadowRay.direction;
-            glm::vec3 r = 2.0f * (glm::dot(l, normal) * normal) - l;
-            glm::vec3 v = glm::normalize(camera->position - intersection);
+        glm::vec3 shadowStart = intersection + (normal * bias);
+        Ray shadowRay = Ray::toObject(shadowStart, lights[i]->position);
+        for(int j = 0; j < sceneObjects.size(); j++) {
+            if(sceneObjects[j] != object) {
+                if(!shadowRay.isLightBlockedBy(lights[i], sceneObjects[j])) {
+                    glm::vec3 l = shadowRay.direction;
+                    glm::vec3 r = 2.0f * (glm::dot(l, normal) * normal) - l;
+                    glm::vec3 v = -glm::normalize(ray.direction);
+                    glm::vec3 h = glm::normalize(v + l);
 
-            float ln = glm::dot(l,normal);
-            ln = ln < 0.0f ? 0.0f : ln;
+                    float ln = fmax(0.0f, glm::dot(l,normal));
+                    float rv = fmax(0.0f, glm::dot(r,v));
+                    float nh = fmax(0.0f, glm::dot(normal, h));
 
-            float rv = glm::dot(r,v);
-            rv = rv < 0.0f ? 0.0f : rv;
+                    glm::vec3 dif = (lights[i]->diffuse * ln);
+                    glm::vec3 spe = (lights[i]->specular * pow(nh,object->shininess));
 
-            glm::vec3 amb = object->ambient + lights[i]->ambient;
-            glm::vec3 dif = object->diffuse + (lights[i]->diffuse * ln);
-            glm::vec3 spe = object->specular + (lights[i]->specular * pow(rv,object->shininess));
-
-            color += amb + dif + spe;
+                    lightContribution += lights[i]->intensity * (dif + spe);
+                }
+            }
         }
     }
+
+    glm::vec3 color = object->ambient + lightContribution;
 
     return glm::clamp(color, 0.0f, 1.0f);
 }

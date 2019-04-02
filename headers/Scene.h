@@ -11,6 +11,7 @@
 #include "SceneObject.h"
 #include "Light.h"
 #include "Pixel.h"
+#include "Ray.h"
 
 class Scene {
 private:
@@ -36,7 +37,7 @@ public:
     Scene& operator=(const Scene& other);
     void renderToImage(const char* filename);
     bool isSceneLoaded();
-    glm::vec3 getIlluminationAt(SceneObject* &object, glm::vec3 &intersection);
+    glm::vec3 getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &intersection);
 };
 
 #endif //RAYTRACER_SCENE_H

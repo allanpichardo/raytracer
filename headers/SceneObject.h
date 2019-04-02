@@ -21,6 +21,17 @@ public:
     Type type;
 
     virtual ~SceneObject() = default;
+    friend inline bool operator==(const SceneObject& lhs, const SceneObject& rhs);
 };
+
+bool operator==(const SceneObject &lhs, const SceneObject &rhs) {
+    return lhs.position == rhs.position &&
+    lhs.normal == rhs.normal &&
+    lhs.ambient == rhs.ambient &&
+    lhs.diffuse == rhs.diffuse &&
+    lhs.specular == rhs.specular &&
+    lhs.shininess == rhs.shininess &&
+    lhs.type == rhs.type;
+}
 
 #endif //RAYTRACER_SCENEOBJECT_H
