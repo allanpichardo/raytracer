@@ -10,7 +10,10 @@
 
 class Light: public SceneObject {
 public:
-    Light() {type = light;};
+    glm::vec3 color;
+
+public:
+    Light() {type = light; color = glm::vec3(1.0f);};
 };
 
 #endif //RAYTRACER_LIGHT_H

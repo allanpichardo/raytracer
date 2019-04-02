@@ -11,6 +11,8 @@
 #include "Pixel.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "Light.h"
+#include <vector>
 
 class Ray {
 public:
@@ -18,14 +20,16 @@ public:
     glm::vec3 direction;
 
 private:
-    bool hasSphereIntersection(Sphere* sphere, glm::vec3 &intersection);
-    bool hasPlaneIntersection(Plane* plane, glm::vec3 &intersection);
+    bool hasSphereIntersection(Sphere* sphere, glm::vec3 &intersection, float &distance);
+    bool hasPlaneIntersection(Plane* plane, glm::vec3 &intersection, float &distance);
 
 public:
     Ray(glm::vec3 &origin, glm::vec3 &direction);
-    bool cast(SceneObject* target, glm::vec3 &intersection);
+    bool intersects(SceneObject *target, glm::vec3 &intersection);
+    bool intersects(SceneObject *target, glm::vec3 &intersection, float &distance);
     static Ray toPixel(Camera &camera, Pixel &pixel);
-    static Ray toObject(SceneObject &origin, SceneObject* destination);
+    static Ray toObject(glm::vec3 &origin, glm::vec3 &destination);
+    bool isLightBlocked(Light* light, std::vector<SceneObject*> objects);
 };
 
 #endif //RAYTRACER_RAY_H

@@ -14,12 +14,17 @@ Ray Ray::toPixel(Camera &camera, Pixel &pixel) {
     return Ray(camera.position, dir);
 }
 
-bool Ray::cast(SceneObject *target, glm::vec3 &intersection) {
+bool Ray::intersects(SceneObject *target, glm::vec3 &intersection) {
+    float t = 0.0f;
+    return intersects(target, intersection, t);
+}
+
+bool Ray::intersects(SceneObject *target, glm::vec3 &intersection, float &distance) {
     switch(target->type) {
         case SceneObject::plane:
-            return hasPlaneIntersection((Plane*)target, intersection);
+            return hasPlaneIntersection((Plane*)target, intersection, distance);
         case SceneObject::sphere:
-            return hasSphereIntersection((Sphere*)target, intersection);
+            return hasSphereIntersection((Sphere*)target, intersection, distance);
         case SceneObject::mesh:break;
         default:
             return false;
@@ -28,7 +33,7 @@ bool Ray::cast(SceneObject *target, glm::vec3 &intersection) {
     return false;
 }
 
-bool Ray::hasSphereIntersection(Sphere* target, glm::vec3 &intersection) {
+bool Ray::hasSphereIntersection(Sphere* target, glm::vec3 &intersection, float &t) {
     glm::vec3 c2e = origin - target->position;
 
     float a = glm::dot(direction, direction);
@@ -44,18 +49,18 @@ bool Ray::hasSphereIntersection(Sphere* target, glm::vec3 &intersection) {
     float tPos = (-b + sqrt(rad)) / (2.0f * a);
     float tNeg = (-b - sqrt(rad)) / (2.0f * a);
 
-    float t = std::fmin(tPos, tNeg);
+    t = std::fmin(tPos, tNeg);
 
     intersection = origin + (t * direction);
 
     return true;
 }
 
-bool Ray::hasPlaneIntersection(Plane* plane, glm::vec3 &intersection) {
+bool Ray::hasPlaneIntersection(Plane* plane, glm::vec3 &intersection, float &t) {
     float d = glm::dot(direction, plane->normal);
 
     if(abs(d) > 0.0f) {
-        float t = glm::dot(plane->position - origin, plane->normal) / d;
+        t = glm::dot(plane->position - origin, plane->normal) / d;
         intersection = origin + (t * direction);
         return t >= 0.0f;
     }
@@ -63,4 +68,20 @@ bool Ray::hasPlaneIntersection(Plane* plane, glm::vec3 &intersection) {
     return false;
 }
 
+Ray Ray::toObject(glm::vec3 &origin, glm::vec3 &destination) {
+    glm::vec3 dir = glm::normalize(destination - origin);
+    return Ray(origin, dir);
+}
 
+bool Ray::isLightBlocked(Light* light, std::vector<SceneObject*> objects) {
+    float lightT = glm::length(light->position - origin);
+    for(int i = 0; i < objects.size(); i++) {
+        glm::vec3 intersection;
+        float t;
+        if(intersects(objects[i], intersection, t) && t < lightT) {
+            return true;
+        }
+    }
+
+    return false;
+}

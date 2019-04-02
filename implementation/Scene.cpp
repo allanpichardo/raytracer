@@ -173,11 +173,10 @@ void Scene::raytrace() {
             float z = -HUGE_VALF;
             for(int i = 0; i < sceneObjects.size(); i++) {
                 glm::vec3 intersection;
-                if(ray.cast(sceneObjects[i], intersection)) {
+                if(ray.intersects(sceneObjects[i], intersection)) {
                     if(intersection.z > z) {
 //                        screen[y][x].color = getIlluminationAt(sceneObjects[i], intersection);
-                        //screen[y][x].color = glm::clamp(intersection, 0.0f, 1.0f);
-                        screen[y][x].color = glm::vec3(1.0f);
+                        screen[y][x].color = sceneObjects[i]->ambient;
                         z = intersection.z;
                     }
                 }
@@ -189,7 +188,7 @@ void Scene::raytrace() {
 }
 
 glm::vec3 Scene::getIlluminationAt(SceneObject* &object, glm::vec3 &intersection) {
-    glm::vec3 color;
+    glm::vec3 color = glm::vec3(0.0f);
     glm::vec3 normal;
 
     switch(object->type) {
@@ -205,8 +204,25 @@ glm::vec3 Scene::getIlluminationAt(SceneObject* &object, glm::vec3 &intersection
     }
 
     for(int i = 0; i < lights.size(); i++) {
+        Ray shadowRay = Ray::toObject(intersection, lights[i]->position);
+        if(!shadowRay.isLightBlocked(lights[i], sceneObjects)) {
+            glm::vec3 l = shadowRay.direction;
+            glm::vec3 r = 2.0f * (glm::dot(l, normal) * normal) - l;
+            glm::vec3 v = glm::normalize(camera->position - intersection);
 
+            float ln = glm::dot(l,normal);
+            ln = ln < 0.0f ? 0.0f : ln;
+
+            float rv = glm::dot(r,v);
+            rv = rv < 0.0f ? 0.0f : rv;
+
+            glm::vec3 amb = object->ambient + lights[i]->ambient;
+            glm::vec3 dif = object->diffuse + (lights[i]->diffuse * ln);
+            glm::vec3 spe = object->specular + (lights[i]->specular * pow(rv,object->shininess));
+
+            color += amb + dif + spe;
+        }
     }
 
-    return color;
+    return glm::clamp(color, 0.0f, 1.0f);
 }
