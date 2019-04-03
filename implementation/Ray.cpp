@@ -73,10 +73,18 @@ Ray Ray::toObject(glm::vec3 &origin, glm::vec3 &destination) {
     return Ray(origin, dir);
 }
 
-bool Ray::isLightBlockedBy(Light* light, SceneObject* object) {
+bool Ray::isLightBlockedBy(SceneObject* currentObject, Light* light, std::vector<SceneObject*> sceneObjects) {
+    float t;
     float lightT = glm::length(light->position - origin);
     glm::vec3 intersection;
-    float t;
-    return intersects(object, intersection, t) && t < lightT;
+    for(auto & object : sceneObjects) {
+        if(currentObject != object && intersects(object, intersection, t)) {
+            if(t < lightT) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 
 }

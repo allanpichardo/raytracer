@@ -166,7 +166,7 @@ void Scene::deepCopy(const Scene& other) {
 
 void Scene::raytrace() {
     clock_t start = clock();
-    std::cout << "Raytracing:";
+    std::cout << "Raytracing started:";
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
             Ray ray = Ray::toPixel(*camera, screen[y][x]);
@@ -181,13 +181,11 @@ void Scene::raytrace() {
                 }
             }
         }
-        std::cout << "." << std::endl;
     }
-    std::cout << "Raytracing completed in " << (double)(clock() - start) / CLOCKS_PER_SEC << " seconds." << std::endl;
+    std::cout << "Completed in " << (double)(clock() - start) / CLOCKS_PER_SEC << " seconds." << std::endl;
 }
 
 glm::vec3 Scene::getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &intersection) {
-    float bias = 1.1f;
     glm::vec3 normal;
 
     switch(object->type) {
@@ -203,27 +201,20 @@ glm::vec3 Scene::getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &in
     }
 
     glm::vec3 lightContribution = glm::vec3(0.0f);
-    for(int i = 0; i < lights.size(); i++) {
-        glm::vec3 shadowStart = intersection + (normal * bias);
-        Ray shadowRay = Ray::toObject(shadowStart, lights[i]->position);
-        for(int j = 0; j < sceneObjects.size(); j++) {
-            if(sceneObjects[j] != object) {
-                if(!shadowRay.isLightBlockedBy(lights[i], sceneObjects[j])) {
-                    glm::vec3 l = shadowRay.direction;
-                    glm::vec3 r = 2.0f * (glm::dot(l, normal) * normal) - l;
-                    glm::vec3 v = -glm::normalize(ray.direction);
-                    glm::vec3 h = glm::normalize(v + l);
+    for(auto & light : lights) {
+        Ray shadowRay = Ray::toObject(intersection, light->position);
+        if(!shadowRay.isLightBlockedBy(object, light, sceneObjects)) {
+            glm::vec3 l = shadowRay.direction;
+            glm::vec3 r = (2.0f * glm::dot(l, normal) * normal) - l;
+            glm::vec3 v = glm::normalize(camera->position - intersection);
 
-                    float ln = fmax(0.0f, glm::dot(l,normal));
-                    float rv = fmax(0.0f, glm::dot(r,v));
-                    float nh = fmax(0.0f, glm::dot(normal, h));
+            float ln = fmax(0.0f, glm::dot(l,normal));
+            float rv = fmax(0.0f, glm::dot(r,v));
 
-                    glm::vec3 dif = (lights[i]->diffuse * ln);
-                    glm::vec3 spe = (lights[i]->specular * pow(nh,object->shininess));
+            glm::vec3 dif = object->diffuse * light->diffuse * ln;
+            glm::vec3 spe = object->specular * light->specular * pow(rv,object->shininess);
 
-                    lightContribution += lights[i]->intensity * (dif + spe);
-                }
-            }
+            lightContribution += (dif + spe);
         }
     }
 

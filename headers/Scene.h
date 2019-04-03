@@ -22,6 +22,9 @@ private:
     std::vector<SceneObject*> sceneObjects;
     Pixel** screen;
 
+public:
+    const static int MAX_DEPTH = 10;
+
 private:
     void initializeScreen();
     void deepCopy(const Scene& other);

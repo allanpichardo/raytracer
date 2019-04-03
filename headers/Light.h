@@ -10,10 +10,10 @@
 
 class Light: public SceneObject {
 public:
-    glm::vec3 intensity;
+    float attenuation;
 
 public:
-    Light() {type = light; intensity = glm::vec3(0.1f);};
+    Light() {type = light; attenuation = 0.0001f;};
 };
 
 #endif //RAYTRACER_LIGHT_H
