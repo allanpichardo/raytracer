@@ -58,14 +58,14 @@ bool Scene::isSceneLoaded() {
 }
 
 void Scene::renderToImage(const char* filename) {
-    unsigned int threads = std::thread::hardware_concurrency() * 10;
+    unsigned int threads = std::thread::hardware_concurrency() * 2;
     int max = width * height;
     volatile std::atomic<int> count(0);
     volatile std::atomic<int> complete(0);
     std::vector<std::future<void>> futures;
     futures.reserve(threads);
 
-    clock_t start = clock();
+    std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
     std::cout << "Raytracing started with " << threads << " threads:" << std::endl;
 
     for(int i = 0; i < threads; i++) {
@@ -85,8 +85,11 @@ void Scene::renderToImage(const char* filename) {
         }));
     }
 
-    while(complete < threads);
-    std::cout << "Completed in " << (double)(clock() - start) / CLOCKS_PER_SEC << " seconds." << std::endl;
+    while(complete < threads); //wait
+
+    std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end-start;
+    std::cout << "Completed in " << elapsed.count() << " seconds." << std::endl;
     std::cout << "Saving image " << filename << std::endl;
 
     cimg_library::CImg<float> image(width, height, 1, 3, 0);
