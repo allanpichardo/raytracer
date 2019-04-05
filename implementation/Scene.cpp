@@ -165,8 +165,9 @@ void Scene::deepCopy(const Scene& other) {
 }
 
 void Scene::raytrace() {
-    clock_t start = clock();
+    std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
     std::cout << "Raytracing started:";
+
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
             Ray ray = Ray::toPixel(*camera, screen[y][x]);
@@ -182,7 +183,10 @@ void Scene::raytrace() {
             }
         }
     }
-    std::cout << "Completed in " << (double)(clock() - start) / CLOCKS_PER_SEC << " seconds." << std::endl;
+
+    std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end-start;
+    std::cout << "Completed in " << elapsed.count() << " seconds." << std::endl;
 }
 
 glm::vec3 Scene::getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &intersection) {
