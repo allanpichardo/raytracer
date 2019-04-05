@@ -15,6 +15,7 @@
 #include "Loader.h"
 #include <CImg.h>
 #include <Ray.h>
+#include <future>
 
 Scene::Scene(unsigned int width, unsigned int height, const std::string &filename) {
 
@@ -57,7 +58,39 @@ bool Scene::isSceneLoaded() {
 }
 
 void Scene::renderToImage(const char* filename) {
-    raytrace();
+    unsigned int threads = std::thread::hardware_concurrency() * 2;
+    int max = width * height;
+    volatile std::atomic<int> count(0);
+    volatile std::atomic<int> complete(0);
+    std::vector<std::future<void>> futures;
+    futures.reserve(threads);
+
+    std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+    std::cout << "Raytracing started with " << threads << " threads:" << std::endl;
+
+    for(int i = 0; i < threads; i++) {
+        futures.push_back(std::async(std::launch::async, [=, &threads, &count, &complete]() {
+            while(true) {
+                int index = count++;
+                if(index >= max) {
+                    break;
+                }
+
+                int x = index % width;
+                int y = floor(index / width);
+
+                raytrace(x, y);
+            }
+            complete++;
+        }));
+    }
+
+    while(complete < threads); //wait
+
+    std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end-start;
+    std::cout << "Completed in " << elapsed.count() << " seconds." << std::endl;
+    std::cout << "Saving image " << filename << std::endl;
 
     cimg_library::CImg<float> image(width, height, 1, 3, 0);
     for(int i = 0; i < width; i++) {
@@ -88,6 +121,7 @@ Scene::Scene(const Scene &other) {
 }
 
 void Scene::deallocateResources() {
+
     for(int i = 0; i < sceneObjects.size(); i++) {
         delete sceneObjects[i];
     }
@@ -164,29 +198,18 @@ void Scene::deepCopy(const Scene& other) {
     initializeScreen();
 }
 
-void Scene::raytrace() {
-    std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-    std::cout << "Raytracing started:";
-
-    for(int y = 0; y < height; y++) {
-        for(int x = 0; x < width; x++) {
-            Ray ray = Ray::toPixel(*camera, screen[y][x]);
-            float z = -HUGE_VALF;
-            for(int i = 0; i < sceneObjects.size(); i++) {
-                glm::vec3 intersection;
-                if(ray.intersects(sceneObjects[i], intersection)) {
-                    if(intersection.z > z) {
-                        screen[y][x].color = getIlluminationAt(ray, sceneObjects[i], intersection);
-                        z = intersection.z;
-                    }
-                }
+void Scene::raytrace(int &x, int &y) {
+    Ray ray = Ray::toPixel(*camera, screen[y][x]);
+    float z = -HUGE_VALF;
+    for(int i = 0; i < sceneObjects.size(); i++) {
+        glm::vec3 intersection;
+        if(ray.intersects(sceneObjects[i], intersection)) {
+            if(intersection.z > z) {
+                screen[y][x].color = getIlluminationAt(ray, sceneObjects[i], intersection);
+                z = intersection.z;
             }
         }
     }
-
-    std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = end-start;
-    std::cout << "Completed in " << elapsed.count() << " seconds." << std::endl;
 }
 
 glm::vec3 Scene::getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &intersection) {
