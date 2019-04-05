@@ -15,6 +15,7 @@
 #include "Loader.h"
 #include <CImg.h>
 #include <Ray.h>
+#include <future>
 
 Scene::Scene(unsigned int width, unsigned int height, const std::string &filename) {
 
@@ -57,7 +58,22 @@ bool Scene::isSceneLoaded() {
 }
 
 void Scene::renderToImage(const char* filename) {
-    raytrace();
+    unsigned int threads = std::thread::hardware_concurrency();
+    volatile std::atomic<int> completed(0);
+    std::vector<std::future<void>> futures;
+
+    clock_t start = clock();
+    std::cout << "Raytracing started with " << threads << " threads:" << std::endl;
+
+    for(int i = 0; i < threads; i++) {
+        futures.push_back(std::async(std::launch::async, [=, &threads, &completed]() {
+            raytrace(i * ceil(height/threads), (i+1) * ceil(height/threads), completed);
+        }));
+    }
+
+    while(completed < threads);
+    std::cout << "Completed in " << (double)(clock() - start) / CLOCKS_PER_SEC << " seconds." << std::endl;
+    std::cout << "Saving image " << filename << std::endl;
 
     cimg_library::CImg<float> image(width, height, 1, 3, 0);
     for(int i = 0; i < width; i++) {
@@ -88,6 +104,7 @@ Scene::Scene(const Scene &other) {
 }
 
 void Scene::deallocateResources() {
+
     for(int i = 0; i < sceneObjects.size(); i++) {
         delete sceneObjects[i];
     }
@@ -164,10 +181,8 @@ void Scene::deepCopy(const Scene& other) {
     initializeScreen();
 }
 
-void Scene::raytrace() {
-    clock_t start = clock();
-    std::cout << "Raytracing started:";
-    for(int y = 0; y < height; y++) {
+void Scene::raytrace(int startRow, int endRow, volatile std::atomic<int> &completed) {
+    for(int y = startRow; y < endRow; y++) {
         for(int x = 0; x < width; x++) {
             Ray ray = Ray::toPixel(*camera, screen[y][x]);
             float z = -HUGE_VALF;
@@ -182,7 +197,7 @@ void Scene::raytrace() {
             }
         }
     }
-    std::cout << "Completed in " << (double)(clock() - start) / CLOCKS_PER_SEC << " seconds." << std::endl;
+    completed++;
 }
 
 glm::vec3 Scene::getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &intersection) {
