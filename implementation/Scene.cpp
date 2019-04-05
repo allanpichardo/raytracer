@@ -58,20 +58,34 @@ bool Scene::isSceneLoaded() {
 }
 
 void Scene::renderToImage(const char* filename) {
-    unsigned int threads = std::thread::hardware_concurrency();
-    volatile std::atomic<int> completed(0);
+    unsigned int threads = std::thread::hardware_concurrency() * 10;
+    int max = width * height;
+    volatile std::atomic<int> count(0);
+    volatile std::atomic<int> complete(0);
     std::vector<std::future<void>> futures;
+    futures.reserve(threads);
 
     clock_t start = clock();
     std::cout << "Raytracing started with " << threads << " threads:" << std::endl;
 
     for(int i = 0; i < threads; i++) {
-        futures.push_back(std::async(std::launch::async, [=, &threads, &completed]() {
-            raytrace(i * ceil(height/threads), (i+1) * ceil(height/threads), completed);
+        futures.push_back(std::async(std::launch::async, [=, &threads, &count, &complete]() {
+            while(true) {
+                int index = count++;
+                if(index >= max) {
+                    break;
+                }
+
+                int x = index % width;
+                int y = floor(index / width);
+
+                raytrace(x, y);
+            }
+            complete++;
         }));
     }
 
-    while(completed < threads);
+    while(complete < threads);
     std::cout << "Completed in " << (double)(clock() - start) / CLOCKS_PER_SEC << " seconds." << std::endl;
     std::cout << "Saving image " << filename << std::endl;
 
@@ -181,23 +195,18 @@ void Scene::deepCopy(const Scene& other) {
     initializeScreen();
 }
 
-void Scene::raytrace(int startRow, int endRow, volatile std::atomic<int> &completed) {
-    for(int y = startRow; y < endRow; y++) {
-        for(int x = 0; x < width; x++) {
-            Ray ray = Ray::toPixel(*camera, screen[y][x]);
-            float z = -HUGE_VALF;
-            for(int i = 0; i < sceneObjects.size(); i++) {
-                glm::vec3 intersection;
-                if(ray.intersects(sceneObjects[i], intersection)) {
-                    if(intersection.z > z) {
-                        screen[y][x].color = getIlluminationAt(ray, sceneObjects[i], intersection);
-                        z = intersection.z;
-                    }
-                }
+void Scene::raytrace(int &x, int &y) {
+    Ray ray = Ray::toPixel(*camera, screen[y][x]);
+    float z = -HUGE_VALF;
+    for(int i = 0; i < sceneObjects.size(); i++) {
+        glm::vec3 intersection;
+        if(ray.intersects(sceneObjects[i], intersection)) {
+            if(intersection.z > z) {
+                screen[y][x].color = getIlluminationAt(ray, sceneObjects[i], intersection);
+                z = intersection.z;
             }
         }
     }
-    completed++;
 }
 
 glm::vec3 Scene::getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &intersection) {
