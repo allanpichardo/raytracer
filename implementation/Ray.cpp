@@ -3,6 +3,7 @@
 //
 
 #include <Ray.h>
+#include <cstdlib>
 
 Ray::Ray(glm::vec3 &origin, glm::vec3 &direction) {
     this->origin = origin;
@@ -61,23 +62,26 @@ bool Ray::hasTriangleIntersection(Triangle* triangle, glm::vec3 &intersection, f
 
     if(abs(d) > 0.0f) {
         t = glm::dot(triangle->vertices[0] - origin, triangle->normal) / d;
+
+        if(t < 0.0f) {
+            return false; //triangle plane is behind origin
+        }
+
         intersection = origin + (t * direction);
 
-        glm::vec3 pa = triangle->vertices[0] - intersection;
-        glm::vec3 pb = triangle->vertices[1] - intersection;
-        glm::vec3 pc = triangle->vertices[2] - intersection;
+        glm::vec3 ba = triangle->vertices[1] - triangle->vertices[0];
+        glm::vec3 cb = triangle->vertices[2] - triangle->vertices[1];
+        glm::vec3 ac = triangle->vertices[0] - triangle->vertices[2];
 
-        float a = glm::length(glm::cross(pb,pc)) / 2.0f;
-        float b = glm::length(glm::cross(pa,pc)) / 2.0f;
-        float c = glm::length(glm::cross(pa,pb)) / 2.0f;
+        glm::vec3 pa = intersection - triangle->vertices[0];
+        glm::vec3 pb = intersection - triangle->vertices[1];
+        glm::vec3 pc = intersection - triangle->vertices[2];
 
-        a /= triangle->area;
-        b /= triangle->area;
-        c /= triangle->area;
+        float a = glm::dot(glm::cross(ba,pa), triangle->normal);
+        float b = glm::dot(glm::cross(cb,pb), triangle->normal);
+        float c = glm::dot(glm::cross(ac,pc), triangle->normal);
 
-        float s = a + b + c;
-
-        return s >= 0.0f && s <= 1.0f;
+        return a >= 0.0f && b >= 0.0f && c >= 0.0f;
     }
 
     return false;
@@ -95,9 +99,10 @@ bool Ray::hasPlaneIntersection(Plane* plane, glm::vec3 &intersection, float &t) 
     return false;
 }
 
-Ray Ray::toObject(glm::vec3 &origin, glm::vec3 &destination) {
+Ray Ray::toObject(glm::vec3 &origin, glm::vec3 &destination, float bias) {
     glm::vec3 dir = glm::normalize(destination - origin);
-    return Ray(origin, dir);
+    glm::vec3 o = origin + bias;
+    return Ray(o, dir);
 }
 
 bool Ray::isLightBlockedBy(SceneObject* currentObject, Light* light, std::vector<SceneObject*> sceneObjects) {

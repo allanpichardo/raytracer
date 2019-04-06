@@ -17,6 +17,8 @@
 #include "Ray.h"
 #include <future>
 #include <boost/filesystem.hpp>
+#include <cstdlib>
+#include <ctime>
 
 Scene::Scene(unsigned int width, unsigned int height, const std::string &filename) {
 
@@ -63,7 +65,8 @@ bool Scene::isSceneLoaded() {
 }
 
 void Scene::renderToImage(const char* filename) {
-    unsigned int threads = std::thread::hardware_concurrency() * 2;
+    srand (static_cast <unsigned> (time(0)));
+    unsigned int threads = std::thread::hardware_concurrency() * 4;
     int max = width * height;
     volatile std::atomic<int> count(0);
     volatile std::atomic<int> complete(0);
@@ -206,6 +209,7 @@ void Scene::deepCopy(const Scene& other) {
 void Scene::raytrace(int &x, int &y) {
     Ray ray = Ray::toPixel(*camera, screen[y][x]);
     float depth = HUGE_VALF;
+    glm::vec3 colorSample = glm::vec3(0.0f);
     for(auto & sceneObject : sceneObjects) {
         glm::vec3 intersection;
         float d;
@@ -220,6 +224,7 @@ void Scene::raytrace(int &x, int &y) {
 
 glm::vec3 Scene::getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &intersection) {
     glm::vec3 normal;
+    float bias = 0.001f;
 
     switch(object->type) {
         case SceneObject::plane:
@@ -235,7 +240,7 @@ glm::vec3 Scene::getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &in
 
     glm::vec3 lightContribution = glm::vec3(0.0f);
     for(auto & light : lights) {
-        Ray shadowRay = Ray::toObject(intersection, light->position);
+        Ray shadowRay = Ray::toObject(intersection, light->position, bias);
         if(!shadowRay.isLightBlockedBy(object, light, sceneObjects)) {
             glm::vec3 l = shadowRay.direction;
             glm::vec3 r = (2.0f * glm::dot(l, normal) * normal) - l;
