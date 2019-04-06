@@ -168,3 +168,9 @@ dkms.conf
 
 /bin/
 !/scenes/cube.obj
+/scenes/
+!/scenes/cube_rot.obj
+!/scenes/scene5.txt
+!/scenes/mesh_scene2.txt
+!/scenes/scene5.bmp
+!/scenes/mesh_scene2.bmp
