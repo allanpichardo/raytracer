@@ -14,15 +14,20 @@
 #include "Light.h"
 #include "Loader.h"
 #include <CImg.h>
-#include <Ray.h>
+#include "Ray.h"
 #include <future>
+#include <boost/filesystem.hpp>
 
 Scene::Scene(unsigned int width, unsigned int height, const std::string &filename) {
 
     this->width = width;
     this->height = height;
 
-    Loader::loadScene(filename, sceneObjects, lights, camera);
+    size_t found;
+    found=filename.find_last_of("/\\");
+    this->scenePath = boost::filesystem::path(filename.substr(0,found));
+
+    Loader::loadScene(filename, sceneObjects, lights, camera, scenePath);
 
     if(isSceneLoaded()) {
         camera->initializeCoordinateSystem();
@@ -32,7 +37,7 @@ Scene::Scene(unsigned int width, unsigned int height, const std::string &filenam
         }
         initializeScreen();
     } else {
-        throw "Unable to load the scene";
+        throw std::invalid_argument("Unable to load the scene");
     }
 }
 
@@ -165,7 +170,7 @@ void Scene::deepCopy(const Scene& other) {
                 continue;
             case SceneObject::Type::mesh:
                 o = new Mesh();
-                ((Mesh*)o)->filename = ((Mesh*)other.sceneObjects[i])->filename;
+                ((Mesh*)o)->loadObj(((Mesh*)other.sceneObjects[i])->getFilename(), this->scenePath);
                 break;
             case SceneObject::Type::sphere:
                 o = new Sphere();
@@ -200,13 +205,14 @@ void Scene::deepCopy(const Scene& other) {
 
 void Scene::raytrace(int &x, int &y) {
     Ray ray = Ray::toPixel(*camera, screen[y][x]);
-    float z = -HUGE_VALF;
-    for(int i = 0; i < sceneObjects.size(); i++) {
+    float depth = HUGE_VALF;
+    for(auto & sceneObject : sceneObjects) {
         glm::vec3 intersection;
-        if(ray.intersects(sceneObjects[i], intersection)) {
-            if(intersection.z > z) {
-                screen[y][x].color = getIlluminationAt(ray, sceneObjects[i], intersection);
-                z = intersection.z;
+        float d;
+        if(ray.intersects(sceneObject, intersection, d)) {
+            if(d < depth) {
+                screen[y][x].color = getIlluminationAt(ray, sceneObject, intersection);
+                depth = d;
             }
         }
     }
@@ -217,12 +223,12 @@ glm::vec3 Scene::getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &in
 
     switch(object->type) {
         case SceneObject::plane:
+        case SceneObject::triangle:
             normal = object->normal;
             break;
         case SceneObject::sphere:
             normal = glm::normalize(intersection - object->position);
             break;
-        case SceneObject::mesh:break;
         default:
             return glm::vec3(0.0f);
     }
@@ -233,7 +239,7 @@ glm::vec3 Scene::getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &in
         if(!shadowRay.isLightBlockedBy(object, light, sceneObjects)) {
             glm::vec3 l = shadowRay.direction;
             glm::vec3 r = (2.0f * glm::dot(l, normal) * normal) - l;
-            glm::vec3 v = glm::normalize(camera->position - intersection);
+            glm::vec3 v = (camera->position != intersection) ? glm::normalize(camera->position - intersection) : glm::vec3(0.0f);
 
             float ln = fmax(0.0f, glm::dot(l,normal));
             float rv = fmax(0.0f, glm::dot(r,v));

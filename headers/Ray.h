@@ -12,6 +12,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Light.h"
+#include "Triangle.h"
 #include <vector>
 
 class Ray {
@@ -22,6 +23,7 @@ public:
 private:
     bool hasSphereIntersection(Sphere* sphere, glm::vec3 &intersection, float &distance);
     bool hasPlaneIntersection(Plane* plane, glm::vec3 &intersection, float &distance);
+    bool hasTriangleIntersection(Triangle* triangle, glm::vec3 &intersection, float &distance);
 
 public:
     Ray(glm::vec3 &origin, glm::vec3 &direction);

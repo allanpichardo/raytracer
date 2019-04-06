@@ -12,6 +12,7 @@
 #include "Light.h"
 #include "Pixel.h"
 #include "Ray.h"
+#include <boost/filesystem.hpp>
 
 class Scene {
 private:
@@ -21,6 +22,7 @@ private:
     std::vector<Light*> lights;
     std::vector<SceneObject*> sceneObjects;
     Pixel** screen;
+    boost::filesystem::path scenePath;
 
 public:
     const static int MAX_DEPTH = 10;
@@ -29,7 +31,7 @@ private:
     void initializeScreen();
     void deepCopy(const Scene& other);
     void deallocateResources();
-    void raytrace(int &x, int &y);
+    inline void raytrace(int &x, int &y);
 
 public:
     Scene() {camera = nullptr; screen = nullptr;};

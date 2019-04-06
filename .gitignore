@@ -7,7 +7,7 @@
 *.slo
 *.lo
 *.o
-*.obj
+#*.obj
 
 # Precompiled Headers
 *.gch
@@ -166,3 +166,5 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+/bin/
+!/scenes/cube.obj

@@ -25,12 +25,12 @@ bool Ray::intersects(SceneObject *target, glm::vec3 &intersection, float &distan
             return hasPlaneIntersection((Plane*)target, intersection, distance);
         case SceneObject::sphere:
             return hasSphereIntersection((Sphere*)target, intersection, distance);
-        case SceneObject::mesh:break;
+        case SceneObject::triangle:
+            return hasTriangleIntersection((Triangle*)target, intersection, distance);
         default:
             return false;
     }
 
-    return false;
 }
 
 bool Ray::hasSphereIntersection(Sphere* target, glm::vec3 &intersection, float &t) {
@@ -53,7 +53,34 @@ bool Ray::hasSphereIntersection(Sphere* target, glm::vec3 &intersection, float &
 
     intersection = origin + (t * direction);
 
-    return true;
+    return t > 0.0f;
+}
+
+bool Ray::hasTriangleIntersection(Triangle* triangle, glm::vec3 &intersection, float &t) {
+    float d = glm::dot(direction, triangle->normal);
+
+    if(abs(d) > 0.0f) {
+        t = glm::dot(triangle->vertices[0] - origin, triangle->normal) / d;
+        intersection = origin + (t * direction);
+
+        glm::vec3 pa = triangle->vertices[0] - intersection;
+        glm::vec3 pb = triangle->vertices[1] - intersection;
+        glm::vec3 pc = triangle->vertices[2] - intersection;
+
+        float a = glm::length(glm::cross(pb,pc)) / 2.0f;
+        float b = glm::length(glm::cross(pa,pc)) / 2.0f;
+        float c = glm::length(glm::cross(pa,pb)) / 2.0f;
+
+        a /= triangle->area;
+        b /= triangle->area;
+        c /= triangle->area;
+
+        float s = a + b + c;
+
+        return s >= 0.0f && s <= 1.0f;
+    }
+
+    return false;
 }
 
 bool Ray::hasPlaneIntersection(Plane* plane, glm::vec3 &intersection, float &t) {
