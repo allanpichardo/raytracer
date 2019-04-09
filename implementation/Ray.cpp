@@ -1,6 +1,10 @@
-//
-// Created by Allan Pichardo on 2019-04-01.
-//
+/*
+ * Allan Pichardo
+ * #40051123
+ *
+ * COMP 371
+ * Final Project
+ */
 
 #include <Ray.h>
 #include <cstdlib>
@@ -20,6 +24,12 @@ bool Ray::intersects(SceneObject *target, glm::vec3 &intersection) {
     return intersects(target, intersection, t);
 }
 
+/**
+ * This convenience function delegates the intersection check
+ * based on the type of scene object being checked. The distance
+ * parameter is useful when comparing distances and is passed by
+ * reference to save CPU time
+ */
 bool Ray::intersects(SceneObject *target, glm::vec3 &intersection, float &distance) {
     switch(target->type) {
         case SceneObject::plane:
@@ -60,7 +70,9 @@ bool Ray::hasSphereIntersection(Sphere* target, glm::vec3 &intersection, float &
 bool Ray::hasTriangleIntersection(Triangle* triangle, glm::vec3 &intersection, float &t) {
     float d = glm::dot(direction, triangle->normal);
 
-    if(abs(d) > 0.0f) {
+    //When d > 0, the normal of the surface is pointing
+    //outward and invisible to the camera
+    if(d < 0.0f) {
         t = glm::dot(triangle->vertices[0] - origin, triangle->normal) / d;
 
         if(t < 0.0f) {
@@ -90,7 +102,9 @@ bool Ray::hasTriangleIntersection(Triangle* triangle, glm::vec3 &intersection, f
 bool Ray::hasPlaneIntersection(Plane* plane, glm::vec3 &intersection, float &t) {
     float d = glm::dot(direction, plane->normal);
 
-    if(abs(d) > 0.0f) {
+    //When d > 0, the normal of the surface is pointing
+    //outward and invisible to the camera
+    if(d < 0.0f) {
         t = glm::dot(plane->position - origin, plane->normal) / d;
         intersection = origin + (t * direction);
         return t >= 0.0f;

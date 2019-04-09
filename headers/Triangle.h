@@ -1,6 +1,10 @@
-//
-// Created by Allan Pichardo on 2019-04-05.
-//
+/*
+ * Allan Pichardo
+ * #40051123
+ *
+ * COMP 371
+ * Final Project
+ */
 
 #ifndef RAYTRACER_TRIANGLE_H
 #define RAYTRACER_TRIANGLE_H

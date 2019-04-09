@@ -1,12 +1,19 @@
-//
-// Created by Allan Pichardo on 2019-03-31.
-//
+/*
+ * Allan Pichardo
+ * #40051123
+ *
+ * COMP 371
+ * Final Project
+ */
 
 #ifndef RAYTRACER_SCENEOBJECT_H
 #define RAYTRACER_SCENEOBJECT_H
 
 #include <glm/glm.hpp>
 
+/**
+ * The base class of all objects on the scene
+ */
 class SceneObject {
 public:
     enum Type {

@@ -1,6 +1,10 @@
-//
-// Created by Allan Pichardo on 2019-04-01.
-//
+/*
+ * Allan Pichardo
+ * #40051123
+ *
+ * COMP 371
+ * Final Project
+ */
 
 #include <Pixel.h>
 #include <Camera.h>

@@ -1,12 +1,23 @@
-//
-// Created by Allan Pichardo on 2019-03-31.
-//
+/*
+ * Allan Pichardo
+ * #40051123
+ *
+ * COMP 371
+ * Final Project
+ */
 
 #include "Mesh.h"
 #include "OBJloader.h"
 #include <boost/filesystem.hpp>
 #include <Loader.h>
 
+/**
+ * Iterates through the index array three-by-three and instantiates
+ * triangles on the heap with the corresponding vertices.
+ * .obj files should be in the same path as scene files. Because these
+ * may be different from the path of the executable, the scene path
+ * is passed to this function.
+ */
 void Mesh::loadObj(std::string &filename, boost::filesystem::path &scenePath) {
 
     this->filename = scenePath.generic_string() + "/" + filename;
@@ -31,6 +42,9 @@ void Mesh::loadObj(std::string &filename, boost::filesystem::path &scenePath) {
             v++;
         }
 
+        //Pre-computing the normal and area of every triangle
+        //to save CPU time during the intersection testing and
+        //lighting calculations
         for(auto& triangle : triangles) {
             glm::vec3 ab = triangle->vertices[1] - triangle->vertices[0];
             glm::vec3 ac = triangle->vertices[2] - triangle->vertices[0];

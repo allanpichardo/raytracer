@@ -1,6 +1,10 @@
-//
-// Created by Allan Pichardo on 2019-04-01.
-//
+/*
+ * Allan Pichardo
+ * #40051123
+ *
+ * COMP 371
+ * Final Project
+ */
 
 #include <fstream>
 #include <boost/token_functions.hpp>
@@ -11,6 +15,12 @@
 #include "Loader.h"
 #include "SceneObject.h"
 
+/**
+ * Reads and parses the scene file and places all scene objects
+ * into a temporary std::vector. Then separates lights from
+ * geometry objects. Meshes are discarded and instead their
+ * triangles are kept
+ */
 void Loader::loadScene(const std::string &filename, std::vector<SceneObject*> &sceneObjects, std::vector<Light*> &lights,
                        Camera* &camera, boost::filesystem::path &scenePath) {
 
@@ -66,6 +76,12 @@ void Loader::parseLine(std::vector<SceneObject*> &objects, std::string &line, bo
     }
 }
 
+/**
+ * String hashing function allows string
+ * literals to be used with switch statement
+ * sourced from
+ * http://www.rioki.org/2016/03/31/cpp-switch-string.html
+ */
 constexpr unsigned int hash(const char *str, int h = 0) {
     return !str[h] ? 5381 : (hash(str, h+1)*33) ^ str[h];
 }

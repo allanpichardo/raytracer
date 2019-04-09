@@ -174,3 +174,4 @@ dkms.conf
 !/scenes/mesh_scene2.txt
 !/scenes/scene5.bmp
 !/scenes/mesh_scene2.bmp
+/output/

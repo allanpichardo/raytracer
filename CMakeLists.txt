@@ -13,7 +13,7 @@ list( APPEND CMAKE_MODULE_PATH
         ${PROJECT_SOURCE_DIR}/extern
         )
 
-add_executable(raytracer main.cpp headers/Camera.h headers/Plane.h headers/Sphere.h headers/Mesh.h headers/Light.h implementation/Camera.cpp implementation/Plane.cpp implementation/Sphere.cpp implementation/Mesh.cpp implementation/Light.cpp headers/Scene.h implementation/Scene.cpp headers/SceneObject.h headers/Ray.h implementation/Ray.cpp headers/Pixel.h implementation/Pixel.cpp implementation/Loader.cpp headers/Loader.h headers/OBJloader.h headers/Triangle.h)
+add_executable(raytracer main.cpp headers/Camera.h headers/Plane.h headers/Sphere.h headers/Mesh.h headers/Light.h implementation/Camera.cpp implementation/Plane.cpp implementation/Sphere.cpp implementation/Mesh.cpp implementation/Light.cpp headers/Scene.h implementation/Scene.cpp headers/SceneObject.h headers/Ray.h implementation/Ray.cpp headers/Pixel.h implementation/Pixel.cpp implementation/Loader.cpp headers/Loader.h headers/OBJloader.h headers/Triangle.h headers/ProgressBar.hpp)
 
 find_package(CImg REQUIRED glm REQUIRED Boost 1.69 COMPONENTS regex system filesystem REQUIRED)
 

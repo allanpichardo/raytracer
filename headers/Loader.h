@@ -1,6 +1,10 @@
-//
-// Created by Allan Pichardo on 2019-04-01.
-//
+/*
+ * Allan Pichardo
+ * #40051123
+ *
+ * COMP 371
+ * Final Project
+ */
 
 #ifndef RAYTRACER_LOADER_H
 #define RAYTRACER_LOADER_H
@@ -12,6 +16,10 @@
 #include "Camera.h"
 #include <boost/filesystem.hpp>
 
+/**
+ * This class parses the scene file and populates std::vectors
+ * with the scene objects and lights
+ */
 class Loader {
 public:
     static void loadScene(const std::string &filename, std::vector<SceneObject*> &sceneObjects, std::vector<Light*> &lights, Camera* &camera, boost::filesystem::path &scenePath);

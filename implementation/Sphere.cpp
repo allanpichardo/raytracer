@@ -1,4 +1,8 @@
-//
-// Created by Allan Pichardo on 2019-03-31.
-//
+/*
+ * Allan Pichardo
+ * #40051123
+ *
+ * COMP 371
+ * Final Project
+ */
 

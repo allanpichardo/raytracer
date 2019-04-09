@@ -1,6 +1,10 @@
-//
-// Created by Allan Pichardo on 2019-03-31.
-//
+/*
+ * Allan Pichardo
+ * #40051123
+ *
+ * COMP 371
+ * Final Project
+ */
 
 #ifndef RAYTRACER_LIGHT_H
 #define RAYTRACER_LIGHT_H
@@ -8,6 +12,9 @@
 #include <glm/glm.hpp>
 #include "SceneObject.h"
 
+/**
+ * Represents a point light in the scene
+ */
 class Light: public SceneObject {
 public:
     float attenuation;

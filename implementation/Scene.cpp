@@ -1,6 +1,10 @@
-//
-// Created by Allan Pichardo on 2019-03-31.
-//
+/*
+ * Allan Pichardo
+ * #40051123
+ *
+ * COMP 371
+ * Final Project
+ */
 
 #include "Scene.h"
 #include <fstream>
@@ -19,7 +23,12 @@
 #include <boost/filesystem.hpp>
 #include <cstdlib>
 #include <ctime>
+#include "ProgressBar.hpp"
 
+/**
+ * Loads the scene file and initializes all
+ * data structures with the corresponding properties.
+ */
 Scene::Scene(unsigned int width, unsigned int height, const std::string &filename) {
 
     this->width = width;
@@ -64,12 +73,25 @@ bool Scene::isSceneLoaded() {
     return camera != nullptr && sceneObjects.size() > 0 && lights.size() > 0;
 }
 
+/**
+ * Creates 2 threads per logical core on the CPU to perform
+ * the raytracing task. For each pixel on screen, the color
+ * is calculated by calling the raytrace(x,y) function. After
+ * all pixel colors are computed, the image is rendered to
+ * screen and saved to disk at the given file path.
+ */
 void Scene::renderToImage(const char* filename) {
-    srand (static_cast <unsigned> (time(0)));
-    unsigned int threads = std::thread::hardware_concurrency() * 4;
+    unsigned int threads = std::thread::hardware_concurrency() * 2;
     int max = width * height;
+
+    //These atomic integers are necessary to
+    //keep track of which pixels have been
+    //completed while avoiding race conditions
+    //from the threads
     volatile std::atomic<int> count(0);
-    volatile std::atomic<int> complete(0);
+    volatile std::atomic<int> progress(0);
+
+    ProgressBar progressBar(max, 70); //progress bar is for information purposes
     std::vector<std::future<void>> futures;
     futures.reserve(threads);
 
@@ -77,7 +99,7 @@ void Scene::renderToImage(const char* filename) {
     std::cout << "Raytracing started with " << threads << " threads:" << std::endl;
 
     for(int i = 0; i < threads; i++) {
-        futures.push_back(std::async(std::launch::async, [=, &threads, &count, &complete]() {
+        futures.push_back(std::async(std::launch::async, [=, &threads, &count, &progress, &progressBar]() {
             while(true) {
                 int index = count++;
                 if(index >= max) {
@@ -87,13 +109,18 @@ void Scene::renderToImage(const char* filename) {
                 int x = index % width;
                 int y = floor(index / width);
 
-                raytrace(x, y);
+                raytrace(x, y); //actual color computation
+                progress++;
             }
-            complete++;
         }));
     }
 
-    while(complete < threads); //wait
+    while (progress < max){
+        progressBar.setTicks(progress);
+        progressBar.display();
+    }
+    progressBar.display();
+    progressBar.done();
 
     std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end-start;
@@ -128,6 +155,12 @@ Scene::Scene(const Scene &other) {
     deepCopy(other);
 }
 
+/**
+ * Since all the scene objects are allocated
+ * on the heap, and there may be hundreds
+ * of them, they have to be destructed
+ * under different scenarios
+ */
 void Scene::deallocateResources() {
 
     for(int i = 0; i < sceneObjects.size(); i++) {
@@ -208,10 +241,14 @@ void Scene::deepCopy(const Scene& other) {
 
 void Scene::raytrace(int &x, int &y) {
     Ray ray = Ray::toPixel(*camera, screen[y][x]);
+    //depth is initialized at +Infinity
     float depth = HUGE_VALF;
-    glm::vec3 colorSample = glm::vec3(0.0f);
     for(auto & sceneObject : sceneObjects) {
         glm::vec3 intersection;
+        //To avoid recomputing the depth
+        //a reference is used to reuse the value
+        //that was already computed during the
+        //intersection test
         float d;
         if(ray.intersects(sceneObject, intersection, d)) {
             if(d < depth) {
@@ -224,7 +261,7 @@ void Scene::raytrace(int &x, int &y) {
 
 glm::vec3 Scene::getIlluminationAt(Ray &ray, SceneObject* &object, glm::vec3 &intersection) {
     glm::vec3 normal;
-    float bias = 0.001f;
+    float bias = 0.0001f;
 
     switch(object->type) {
         case SceneObject::plane:
