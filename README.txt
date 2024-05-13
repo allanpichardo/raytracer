@@ -1,5 +1,4 @@
 Raytracer
-COMP 371 Final Project
 
 Allan Pichardo
 
